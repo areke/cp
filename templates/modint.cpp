@@ -8,9 +8,9 @@
 const long long MOD = 1e9 + 7;
 
 struct mi { // WARNING: needs some adjustment to work with FFT
- 	int v; explicit operator int() const { return v; } 
+ 	long long v; explicit operator int() const { return v; } 
 	mi():v(0) {}
-	mi(long long _v):v(int(_v%MOD)) { v += (v<0)*MOD; }
+	mi(long long _v):v((int)(_v%MOD)) { v += (v<0)*MOD; }
 };
 mi& operator+=(mi& a, mi b) { 
 	if ((a.v += b.v) >= MOD) a.v -= MOD; 

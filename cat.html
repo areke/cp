@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #canvas {
+        display: block;
+        margin: 0 auto;
+        background: black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+
+
+// Set up the canvas where the animation will be drawn
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Set up the initial position of the cat
+// Set up the initial position of the cat
+let x = 0;
+let y = canvas.height - streetHeight - 50;
+
+// Set up the speed of the cat
+const speed = 5;
+
+// This function is called 60 times per second to update the
+// position of the cat and draw the animation
+function update() {
+  // Update the position of the cat
+  x += speed;
+
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw the street
+  drawStreet();
+
+  // Draw the cat at the new position
+  drawCat(x, y);
+
+  // Request another frame
+  requestAnimationFrame(update);
+}
+// This function draws the street
+function drawStreet() {
+  // Calculate the height of the street
+  const streetHeight = canvas.height / 3;
+
+  // Set the fill color to white
+  ctx.fillStyle = 'white';
+
+  // Draw the street
+  ctx.beginPath();
+  ctx.rect(0, canvas.height - streetHeight, canvas.width, streetHeight);
+  ctx.fill();
+
+  // Set the stroke color to yellow
+  ctx.strokeStyle = 'yellow';
+
+  // Set the line width to 5 pixels
+  ctx.lineWidth = 5;
+
+  // Draw the street lines
+  for (let i = 0; i < canvas.width; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(i, canvas.height - streetHeight);
+    ctx.lineTo(i + 25, canvas.height - streetHeight);
+    ctx.stroke();
+  }
+}
+
+
+// This function draws a cat at the specified position
+function drawCat(x, y) {
+  // Set the fill color to white
+  ctx.fillStyle = 'white';
+
+  // Draw the body of the cat
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + 40, y + 10);
+  ctx.lineTo(x + 40, y + 40);
+  ctx.lineTo(x, y + 50);
+  ctx.lineTo(x - 40, y + 40);
+  ctx.lineTo(x - 40, y + 10);
+  ctx.closePath();
+  ctx.fill();
+
+  // Draw the ears of the cat
+  ctx.beginPath();
+  ctx.moveTo(x - 30, y - 30);
+  ctx.lineTo(x - 20, y - 50);
+  ctx.lineTo(x - 10, y - 30);
+  ctx.moveTo(x + 30, y - 30);
+  ctx.lineTo(x + 20, y - 50);
+  ctx.lineTo(x + 10, y - 30);
+  ctx.fill();
+
+  // Draw the eyes of the cat
+  ctx.beginPath();
+  ctx.arc(x - 10, y - 30, 5, 0, Math.PI * 2);
+  ctx.arc(x + 10, y - 30, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw the nose of the cat
+  ctx.beginPath();
+  ctx.arc(x, y - 30, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw the mouth of the cat
+  ctx.beginPath();
+  ctx.arc(x, y - 28, 3, 0, Math.PI);
+  ctx.fill();
+}
+// Start the animation
+update();
+
+    </script>
+  </body>
+</html>

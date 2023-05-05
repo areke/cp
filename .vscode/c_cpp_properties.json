@@ -1,0 +1,9 @@
+{
+  "configurations": [
+    {
+      "cppStandard": "c++17",
+      "compilerPath": "/opt/homebrew/bin/g++-13",
+    }
+  ],
+  "version": 4
+}
