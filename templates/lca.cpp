@@ -16,6 +16,8 @@
 #include <assert.h>
 #include <array>
 #include <cstring>
+#include <functional>
+
 using namespace std;
 
 // SOLVES https://cses.fi/problemset/task/1688

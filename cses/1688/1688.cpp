@@ -12,6 +12,7 @@
 #include <limits>
 #include <assert.h>
 #include <queue>
+#include <functional>
 #include <list>
 #include <assert.h>
 #include <array>
@@ -41,11 +42,13 @@ int main() {
 	vector<vector<int > > jump(LEVELS, vector<int >(n, -1));
 		
 	vector<pair<int, int> > d(n);
+	vector<int> o(n);
 	int cnt = 0;
 	// populate jump[i] with the 2^0th ancestor of i, and d with the euler
 
 	function<void (int x, int & cnt, int last)> dfs = [&](int x, int & cnt, int last) {
 		jump[0][x] = last;
+		o[cnt] = x;
 		int s = cnt;
 		for (auto n : v[x]) {
 			if (n == last) continue;

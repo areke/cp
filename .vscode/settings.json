@@ -80,7 +80,9 @@
         "memory_resource": "cpp",
         "span": "cpp",
         "format": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "*.tcc": "cpp",
+        "climits": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "terminal.integrated.shellArgs.osx": ["-l"]
