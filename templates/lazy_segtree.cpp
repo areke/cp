@@ -23,13 +23,12 @@ using namespace std;
 struct node {
 // MODIFY HERE
 	long long v = 0;
-	long long m = 1;
+	long long m = 0;
 	node(long long v, long long m) {
 		this->v = v;
 		this->m = m;
 	}
 };
-
 
 
 long long MOD = 1e9 + 7;
@@ -40,7 +39,7 @@ struct Seg {
 	vector<T> seg;
 	int sz;
 	// MODIFY HERE
-	const T ID = node(0, 1);
+	const T ID = node(0, 0);
 	
 	void init(int n) {
 		sz = 1;
@@ -50,22 +49,19 @@ struct Seg {
 
 	T comb(T a, T b) {
 		// MODIFY HERE
-		return node((a.v * a.m + b.v * b.m) % MOD, 1);
+		return node(a.v + b.v + a.m + b.m, 0);
 	}
 
 	void push(int tl, int tr, int ind) {
 		
 		long long m = seg[ind].m;
 		// MODIFY HERE
-		seg[ind].v *= m;
-		seg[ind].v %= MOD;
-		seg[ind].m = 1;
+		seg[ind].v += m;
+		seg[ind].m = 0;
 		if (tl == tr) return;
-		seg[2 * ind + 1].m *= m;
-		seg[2 * ind + 1].m %= MOD;
+		seg[2 * ind + 1].m += m;
 		
-		seg[2 * ind + 2].m *= m;
-		seg[2 * ind + 2].m %= MOD;
+		seg[2 * ind + 2].m += m;
 	}
 
 	T query(int l, int r, int tl, int tr, int ind) {
@@ -93,8 +89,8 @@ struct Seg {
 		push(tl, tr, ind);
 		if (l <= tl && r >= tr) {
 			// MODIFY HERE
-			seg[ind].m *= v;
-			seg[ind].m %= MOD;
+			seg[ind].m += v;
+			push(tl, tr, ind);
 			return;
 		} 
 		add(l, r, v, tl, (tl + tr) / 2, 2 * ind + 1);
@@ -111,18 +107,23 @@ int main() {
 	Seg<node> seg;
 	seg.init(n);
 	for (int i = 0; i < n; i++) {
-		seg.upd(i, {1, 1});
+		long long x;
+		cin >> x;
+		seg.upd(i, {x, 0});
 	}
 	for (int i = 0; i < m; i++) {
 		int t, l, r;
-		cin >> t >> l >> r;
-		r--;
+		cin >> t;
 		if (t == 2) {
-			node nd = seg.query(l, r, 0, seg.sz - 1, 0);
+			cin >> l;
+			l--;
+			node nd = seg.query(l, l, 0, seg.sz - 1, 0);
 			cout << nd.v << endl;
 		} else {
 			long long v;
-			cin >> v;
+			cin >> l >> r >> v;
+			l--;
+			r--;
 			seg.add(l, r, v, 0, seg.sz - 1, 0);
 		}
 	}

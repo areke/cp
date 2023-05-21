@@ -1,6 +1,15 @@
 {
     "version": "0.2.0",
     "configurations": [
+
+    {
+        "name": "(lldb) Attach",
+        "type": "cppdbg",
+        "request": "attach",
+        "processId":"${command:pickProcess}",
+        "program": "${workspaceFolder}/cses/1689/1689.cpp",
+        "MIMode": "lldb"
+    },
         {
             "name": "C/C++: g++ build and debug active file",
             "type": "cppdbg",
