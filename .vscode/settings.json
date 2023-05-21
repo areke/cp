@@ -99,7 +99,8 @@
         "semaphore": "cpp",
         "thread": "cpp",
         "future": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "barrier": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "terminal.integrated.shellArgs.osx": ["-l"]
