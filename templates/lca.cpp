@@ -24,6 +24,15 @@ using namespace std;
 
 const int LEVELS = 19;
 
+
+void getDepth(int x, vector<vector<int> > & v, vector<int> & depth, int last) {
+	if (last != -1) depth[x] = depth[last] + 1;
+	for (int n : v[x]) {
+		if (last == n) continue;
+		getDepth(n, v, depth, x);
+	}
+}
+
 int main() {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
@@ -39,6 +48,9 @@ int main() {
 		v[p[i]].push_back({i});
 		v[i].push_back({p[i]});
 	}
+
+	vector<int> depth(n, 0);
+	getDepth(0, v, depth, -1);
 
 	vector<vector<int > > jump(LEVELS, vector<int >(n, -1));
 		
