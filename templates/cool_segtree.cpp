@@ -7,8 +7,6 @@ using pii = pair<int, int>;
 #define mp make_pair
 #define xx first
 #define yy second
-
-#define pb emplace_back
 #define sz(x) int(x.size())
 
 const int INF = 1e9 + 5;

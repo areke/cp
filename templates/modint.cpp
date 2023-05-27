@@ -27,3 +27,28 @@ mi pow(mi a, long long p) { assert(p >= 0); // won't work for negative p
 mi inv(mi a) { assert(a.v != 0); return pow(a,MOD-2); }
 mi operator/(mi a, mi b) { return a*inv(b); }
 bool operator==(mi a, mi b) { return a.v == b.v; }
+
+const int MAXN = 200000 + 5;
+mi fact[MAXN], invfact[MAXN];
+mi nCr(int n, int r) {
+	return fact[n] * invfact[r] * invfact[n - r];
+}
+
+void prepareFact() {
+	fact[0] = 1;
+	for (int i = 1; i < MAXN; i++) {
+		fact[i] = fact[i - 1] * i;
+	}
+	invfact[MAXN - 1] = mi(1) / fact[MAXN - 1];
+	for (int i = MAXN - 2; i >= 0; i--) {
+		invfact[i] = invfact[i + 1] * (i + 1);
+	}
+}
+
+mi modExp(mi a, long long b) {
+	if (b == 0) return 1;
+	mi res = modExp(a, b / 2);
+	res *= res;
+	if (b % 2) res *= a;
+	return res;
+}

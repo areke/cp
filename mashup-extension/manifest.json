@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Codeforces Mashup Extension",
+  "version": "1.0",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_title": "Run Codeforces Mashup script"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

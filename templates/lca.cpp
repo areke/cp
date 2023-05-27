@@ -22,75 +22,78 @@ using namespace std;
 
 // SOLVES https://cses.fi/problemset/task/1688
 
-const int LEVELS = 19;
 
+struct LCA {
+	int n;
+	const int LEVELS = 19;
+	vector<vector<int > > v;
 
-void getDepth(int x, vector<vector<int> > & v, vector<int> & depth, int last) {
-	if (last != -1) depth[x] = depth[last] + 1;
-	for (int n : v[x]) {
-		if (last == n) continue;
-		getDepth(n, v, depth, x);
-	}
-}
+	vector<int> depth;
 
-int main() {
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	int n, q;
-	cin >> n >> q;
-	vector<int> p(n, -1);
-	vector<vector<int > > v(n);
-	
-	for (int i = 1; i < n; i++) {
-		cin >> p[i];
-		p[i]--;
-    // 0 is the edge weight
-		v[p[i]].push_back({i});
-		v[i].push_back({p[i]});
-	}
-
-	vector<int> depth(n, 0);
-	getDepth(0, v, depth, -1);
-
-	vector<vector<int > > jump(LEVELS, vector<int >(n, -1));
+	vector<vector<int > > jump;
 		
-	vector<pair<int, int> > d(n);
-	int cnt = 0;
-	// populate jump[i] with the 2^0th ancestor of i, and d with the euler
+	vector<pair<int, int> > euler_tour;
 
-	function<void (int x, int & cnt, int last)> dfs = [&](int x, int & cnt, int last) {
-		jump[0][x] = last;
-		int s = cnt;
-		for (auto n : v[x]) {
-			if (n == last) continue;
-			dfs(n, ++cnt, x);
-		}
-		int e = cnt;
-		d[x] = {s, e};
-	};
-
-
-
-	dfs(0, cnt, -1);
-
-	for (int i = 1; i < jump.size(); i++) {
-		for (int j = 0; j < n; j++) {
-			auto old = jump[i - 1][j];
-			if (old == -1) continue;
-			auto next = jump[i - 1][old];
-			jump[i][j] = next;
+	void getDepth(int x, int last) {
+		if (last != -1) depth[x] = depth[last] + 1;
+		for (int n : v[x]) {
+			if (last == n) continue;
+			getDepth(n, x);
 		}
 	}
+	
 
+	
+	LCA(vector<vector<int> > & v) {
+		this->v = v;
+		this->n = v.size();
+		depth.assign(n, 0);
+		jump.resize(LEVELS);
+		for (int i = 0; i < LEVELS; i++) {
+			jump[i].assign(n, -1);
+		}
+		euler_tour.resize(n);
+		getDepth(0, -1);
+
+		int cnt = 0;
+		// populate jump[i] with the 2^0th ancestor of i, and d with the euler
+
+		function<void (int x, int & cnt, int last)> lca_dfs = [&](int x, int & cnt, int last) {
+			jump[0][x] = last;
+			int s = cnt;
+			for (auto n : v[x]) {
+				if (n == last) continue;
+				lca_dfs(n, ++cnt, x);
+			}
+			int e = cnt;
+			euler_tour[x] = {s, e};
+		};
+
+
+
+		lca_dfs(0, cnt, -1);
+
+		for (int i = 1; i < jump.size(); i++) {
+			for (int j = 0; j < n; j++) {
+				auto old = jump[i - 1][j];
+				if (old == -1) continue;
+				auto next = jump[i - 1][old];
+				jump[i][j] = next;
+			}
+		}
+		
+
+	}
 	// given a vector<pair<int, int> > of the start and exit of the euler tour of d
 	// return if a is an ancestor of b
-	auto isAncestor = [&](int a, int b) {
-		return (d[a].first <= d[b].first && d[a].second >= d[b].second);
-	};
+	bool isAncestor(int a, int b) {
+		return (euler_tour[a].first <= euler_tour[b].first && euler_tour[a].second >= euler_tour[b].second);
+	}
+
 
 	// jumps to the dth ancestor of x
 	// returns the ancestor
-	auto jmp = [&](int x, int d) {
+	int jmp(int x, int d) {
 		int ret = x;
 		for (int i = 0; i < LEVELS; i++) {
 			if ((1 << i) & d) {
@@ -100,10 +103,9 @@ int main() {
 			if (x == -1) return -1;
 		}
 		return ret;
-	};
+	}
 
-	// return lca of a and b
-	auto lca = [&](int a, int b) {
+	int lca(int a, int b) {
 		int low = 0;
 		int high = 1 << LEVELS;
 		int best = -1;
@@ -123,13 +125,34 @@ int main() {
 		}
 
 		return best;
-	};
+	}
+};
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	int n, q;
+	cin >> n >> q;
+	vector<int> p(n, -1);
+	vector<vector<int > > v(n);
+
+	
+	for (int i = 1; i < n; i++) {
+		cin >> p[i];
+		p[i]--;
+    // 0 is the edge weight
+		v[p[i]].push_back({i});
+		v[i].push_back({p[i]});
+	}
+	LCA lca(v);
+	
+
 	for (int i = 0; i < q; i++) {
 		int a, b;
 		cin >> a >> b;
 		a--;
 		b--;
-		cout << lca(a, b) + 1 << "\n";
+		cout << lca.lca(a, b) + 1 << "\n";
 	}
 
 
