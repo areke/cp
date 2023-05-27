@@ -1,0 +1,1 @@
+Go to chrome://extensions/ then load unpacked and select this folder. Then just click on the extension in the toolbar when at https://codeforces.com/mashup/new.
