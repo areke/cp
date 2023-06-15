@@ -1,56 +1,47 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+int bit[1001][1001];
+int n;
 
-/**
- * Short for "binary indexed tree",
- * this data structure supports point update and range sum
- * queries like a segment tree.
- * */
-template <class T> class BIT {
-  private:
-	int size;
-	int bit[1001] = {0};
-	int arr[1001] = {0};
-
-  public:
-	BIT(int size) : size(size) {}
-
-	/** Sets the value at index ind to val. */
-	void set(int ind, int val) { add(ind, val - arr[ind]); }
-
-	/** Adds val to the element at index ind. */
-	void add(int ind, int val) {
-		arr[ind] += val;
-		ind++;
-		for (; ind <= size; ind += ind & -ind) { bit[ind] += val; }
+void update(int x, int y, int val) {
+	for (; x <= n; x += (x & (-x))) {
+		for (int i = y; i <= n; i += (i & (-i))) { bit[x][i] += val; }
 	}
+}
 
-	/** @return The sum of all values in [0, ind]. */
-	T pref_sum(int ind) {
-		ind++;
-		T total = 0;
-		for (; ind > 0; ind -= ind & -ind) { total += bit[ind]; }
-		return total;
+int query(int x1, int y1, int x2, int y2) {
+	int ans = 0;
+	for (int i = x2; i; i -= (i & (-i))) {
+		for (int j = y2; j; j -= (j & (-j))) { ans += bit[i][j]; }
 	}
-};
+	for (int i = x2; i; i -= (i & (-i))) {
+		for (int j = y1 - 1; j; j -= (j & (-j))) { ans -= bit[i][j]; }
+	}
+	for (int i = x1 - 1; i; i -= (i & (-i))) {
+		for (int j = y2; j; j -= (j & (-j))) { ans -= bit[i][j]; }
+	}
+	for (int i = x1 - 1; i; i -= (i & (-i))) {
+		for (int j = y1 - 1; j; j -= (j & (-j))) { ans += bit[i][j]; }
+	}
+	return ans;
+}
+
 
 
 int main() {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
-	int n, m;
+	int m;
 	cin >> n >> m;
 	vector<vector<int> > v(n, vector<int>(n, 0));
-	vector<BIT<int> > p(n, BIT<int>(n + 1));
 	for (int i = 0; i < n; i++) {
 		string s;
 		cin >> s;
 		for (int j = 0; j < n; j++) {
-			if (s[j] == '*') v[i][j] = 1;
-			else v[i][j] = 0;
-
-			p[i].set(j + 1, v[i][j]);
+			if (s[j] == '*') v[j][i] = 1;
+			else v[j][i] = 0;
+			update(j + 1, i + 1, v[j][i]);
 		}
 	}
 	vector<int> ans;
@@ -59,23 +50,20 @@ int main() {
 		cin >> t;
 		if (t == 1) {
 			int x, y;
-			cin >> x >> y;
+			cin >> y >> x;
 			x--;
 			y--;
 			v[x][y] ^= 1;
-			p[x].set(y + 1, v[x][y]);
+			if (v[x][y]) update(x + 1, y + 1, 1);
+			else update(x + 1, y + 1, -1);
 		} else if (t == 2) {
 			int a, b, c, d;
-			cin >> a >> b >> c >> d;
+			cin >> b >> a >> d >> c;
 			a--;
 			b--;
 			c--;
 			d--;
-			long long res = 0;
-			for (int j = a; j <= c; j++) {
-				res += p[j].pref_sum(d + 1) - p[j].pref_sum(b);
-			}
-			ans.push_back(res);
+			ans.push_back(query(a + 1, b + 1, c + 1, d + 1));
 		}
 	}
 	for (int i = 0; i < ans.size(); i++) {

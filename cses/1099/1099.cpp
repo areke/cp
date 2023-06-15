@@ -9,13 +9,13 @@ int main() {
 	for (int test = 1; test <= tests; test++) {
 		int n;
 		cin >> n;
+		int last = 0;
+
 		int s = 0;
 		for (int i = 0; i < n; i++) {
 			int x;
 			cin >> x;
-			if (i >= 1)  {
-				s ^= (i % 2);
-			}
+			if (i % 2 == 1) s ^= x;
 		}
 		if (s) {
 			cout << "first" << endl;
