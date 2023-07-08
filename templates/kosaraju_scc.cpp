@@ -20,6 +20,8 @@
 #include <cstring>
 using namespace std;
 
+// verification: CSES and https://judge.yosupo.jp/submission/147763
+
 void kosaraju_dfs(int x, vector<vector<int> > & v, vector<bool> & vis, vector<int> & postorder) {
 	if (vis[x]) return;
 	vis[x] = true;

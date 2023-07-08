@@ -1,95 +1,129 @@
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <iomanip>
-#include <vector>
-#include <map>
-#include <set>
-#include <stack>
-#include <limits>
-#include <assert.h>
-#include <queue>
-#include <list>
-#include <assert.h>
-#include <array>
-#include <cstring>
+#include <bits/stdc++.h>
 using namespace std;
 
-template<class T> struct Seg {
-	const T ID = 0;
-	T comb(T a, T b) {
-		return a + b;
-	}
+struct centroid_decomp {
 	int n;
-	vector<T> seg;
-	void init(int _n) {
-		n = _n;
-		seg.assign(2*n, ID);
-	}
-	void pull(int p) {
-		seg[p] = comb(seg[2*p], seg[2*p+1]);
-	}
+	vector<set<int> > v;
+	vector<int> s;
+	vector<int> p;
+	vector<map<int, int> > d;
+	vector<int> res;
 
-	void upd(int p, T val) {
-		seg[p += n] = val;
-		for (p /= 2; p; p/= 2) {
-			pull(p);
+	void precomp(int x, int last) {
+		if (last != -1) res[x] = res[last] + 1;
+		for (int n : v[x]) {
+			if (n == last) continue;
+			precomp(n, x);
 		}
 	}
 
-	int get(int p) {
-		return seg[n + p];
+	centroid_decomp(vector<set<int> > v) {
+		n = v.size();
+		this->v = v;
+		s.assign(n, 0);
+		p.assign(n, -1);
+		d.resize(n);
+		res.assign(n, 0);
+		precomp(0, -1);
 	}
 
-	T query(int l, int r) {
-		T ra = ID, rb = ID;
-		for (l += n, r += n+1; l < r; l /= 2, r /= 2) {
-			if (l&1) ra = comb(ra, seg[l++]);
-			if (r&1) rb = comb(seg[--r], rb);
+	int dfs(int x, int last) {
+		s[x] = 1;
+		for (int n : v[x]) {
+			if (n == last) continue;
+			s[x] += dfs(n, x);
 		}
-		return comb(ra,rb);
+		return s[x];
 	}
+
+	int get_centroid(int x, int sz, int last) {
+		for (int n : v[x]) {
+			if (n == last) continue;
+			if (s[n] > sz / 2) return get_centroid(n, sz, x);
+		}
+		return x;
+	}
+
+	void solve(int x, int c, int last) {
+		if (last != -1) d[c][x] = d[c][last] + 1;
+		else d[c][x] = 0;
+		for (int n : v[x]) {
+			if (n == last) continue;
+			solve(n, c, x);
+		}
+	}
+	int cnt = 0;
+
+	void decomp(int x, int lastc) {
+		int sz = dfs(x, -1);
+		int c = get_centroid(x, sz, -1);
+		solve(c, c, -1);
+		p[c] = lastc;
+		set<int> children = v[c];
+
+		for (int n : children) {
+			v[n].erase(v[n].find(c));
+			v[c].erase(v[c].find(n));
+		}
+		for (int n : children) {
+			decomp(n, c);
+		}
+	}
+
+	void compute() {
+		decomp(0, -1);
+	}
+
+	void update(int x) {
+		int orig = x;
+		while (x != -1) {
+			res[x] = min(res[x], d[x][orig]);
+
+			x = p[x];
+		}
+	}
+
+	int query(int x) {
+		
+		int best = 1e9;
+		int orig = x;
+		while (x != -1) {
+			best = min(best, d[x][orig] + res[x]);
+
+			x = p[x];
+		}
+		return best;
+	}
+
 };
 
 int main() {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
-	int n;
-	cin >> n;
-	vector<long long> a(n);
-	set<long long> s;
-	for (int i = 0; i < n; i++) {
-		cin >> a[i];
-		s.insert(a[i]);
+	int n, q;
+	cin >> n >> q;
+	vector<set<int> > v(n);
+	for (int i = 0; i < n - 1; i++) {
+		int x, y;
+		cin >> x >> y;
+		x--;
+		y--;
+		v[x].insert(y);
+		v[y].insert(x);
 	}
-	map<long long, int> m;
-	int cnt = 0;
-	for (int x : s) {
-		m[x] = cnt++;
-	}
-	
-	Seg<long long> l;
-	Seg<long long> r;
-	l.init(n);
-	r.init(n);
-	for (int i = 0; i < n; i++) {
-		r.upd(m[a[i]], r.get(m[a[i]]) + 1);
-	}
-	long long res = 0;
-	for (int i = 0; i < n; i++) {
-		r.upd(m[a[i]], r.get(m[a[i]]) - 1);
-		if (i > 0 && i < n - 1) {
-			long long left = l.query(m[a[i]] + 1, n - 1);
-			long long right = r.query(0, m[a[i]] - 1);
-			res += left * right;
+	centroid_decomp decomp(v);
+	decomp.compute();
+
+	while (q--) {
+		int t, x;
+		cin >> t >> x;
+		x--;
+		if (t == 1)  {
+			decomp.update(x);
+		} else {
+			cout << decomp.query(x) << endl;
 		}
-		l.upd(m[a[i]], l.get(m[a[i]]) + 1);
-		
 	}
-	cout << res << endl;
 
 	// IF STUCK:
 		// DIV CONQUER?
