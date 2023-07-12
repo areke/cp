@@ -13,7 +13,5 @@ int main() {
 	// IF STUCK:
 		// DIV CONQUER?
 		// CONSIDER SMALL CASES
-		// INDUCTION
-
 	return 0;
 }

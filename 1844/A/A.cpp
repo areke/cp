@@ -7,13 +7,13 @@ int main() {
 	int tests;
 	cin >> tests;
 	for (int test = 1; test <= tests; test++) {
-		
+		int a, b;
+		cin >> a >> b;
+		cout << a + b << endl;
 	}
 
 	// IF STUCK:
 		// DIV CONQUER?
 		// CONSIDER SMALL CASES
-		// INDUCTION
-
 	return 0;
 }
