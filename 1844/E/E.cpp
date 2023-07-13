@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// after first two rows, each next row must be one of the 2 thats not before it
 
 struct DSU {
 	vector<int> e;
@@ -23,20 +22,32 @@ struct DSU {
 	}
 };
 
+bool dfs(int x, vector<vector<int> > & v, vector<int> & c, int cur) {
+	if (c[x]) {
+		return c[x] == (cur + 1);
+	}
+	c[x] = cur + 1;
+	bool can = true;
+	for (int n : v[x]) {
+		can = can && dfs(n, v, c, cur ^ 1);
+	}
+	return can;
+}
+
 int main() {
 	
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 	int tests;
 	cin >> tests;
+	
+	
 	for (int test = 1; test <= tests; test++) {
 		int n, m, k;
 		cin >> n >> m >> k;
-		vector<vector<int> > dr(m, vector<int>(2, 0));
-		vector<vector<int> > dl(m, vector<int>(2, 0));
-
-		vector<vector<int> > cdr(n, vector<int>(2, 0));
-		vector<vector<int> > cdl(n, vector<int>(2, 0));
+		DSU dsu(n + m);
+		vector<vector<int> > v(n + m);
+		vector<pair<int, int> > dif;
 		for (int i = 0; i < k; i++) {
 			int a, b, c, d;
 			cin >> a >> b >> c >> d;
@@ -44,29 +55,32 @@ int main() {
 			b--;
 			c--;
 			d--;
-			if (b + 1 == d) {
-				dr[b][a % 2] = 1;
-				cdr[a][b % 2] = 1;
+			if (d == b + 1) {
+				dif.push_back({a, n + min(b, d)});
 			} else {
-				dl[b][a % 2] = 1;
-				cdl[a][b % 2] = 1;
+				dsu.unite(a, n + min(b, d));
 			}
 		}
-		bool can = true;
-		for (int i = 0; i < m - 1; i++) {
-			for (int j = 0; j < 2; j++) {
-				if (dr[i][j] && dl[i + 1][j]) can = false;	
+		for (int i = 0; i < dif.size(); i++) {
+			int a = dsu.get(dif[i].first);
+			int b = dsu.get(dif[i].second);
+			v[a].push_back(b);
+			v[b].push_back(a);
+		}
+		vector<int> c(n + m, 0);
+		string res = "YES";
+		for (int i = 0; i < n + m; i++) {
+			if (!c[i]) { 
+				bool can = dfs(i, v, c, 0);
+				if (!can) {
+					res = "NO";
+					break;
+				}
 			}
 		}
-		if (can) {
-			cout << "YES" << endl;
-		} else {
-			cout << "NO" << endl;
-		}
-
+		cout << res << endl;
 
 	}
-
 	// IF STUCK:
 		// DIV CONQUER?
 		// CONSIDER SMALL CASES
