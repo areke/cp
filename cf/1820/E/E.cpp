@@ -18,58 +18,26 @@
 #include <cstring>
 using namespace std;
 
-int st = 0;
-
-void dfs(int x, vector<vector<int> > & v, int last) {
-	st = x;
+ void dfs(int x, vector<vector<int> > & v, vector<int> & d, int last = -1) {
+	if (last == -1) d[x] = 1;
+	else d[x] = d[last] + 1;
 	for (int n : v[x]) {
-		if (n != last) dfs(n, v, x);
+		if (n == last) continue;
+		dfs(n, v, d, x);
 	}
-}
+ }
 
-void getc(int x, vector<vector<int> > & v, vector<set<int> > & children, vector<int> & p, int last) {
-	p[x] = last;
-	st = x;
+ void dfs2(int x, int b, vector<vector<int> > & v, vector<int> & d, vector<int> & p, int last = -1) {
+	p.push_back(x);
+	if (x == b) {
+		d = p;
+	}
 	for (int n : v[x]) {
-		if (n != last) {
-			children[x].insert(n);
-			getc(n, v, children, p, x);
-		}
+		if (n == last) continue;
+		dfs2(n, b, v, d, p, x);
 	}
-}
-
-void solve(int x, vector<vector<int> > & v, vector<int> & path, vector<set<int> > & c, vector<int> & p, vector<bool> & vis, int last) {
-	if (x == -1) return;
-	if (vis[x]) return;
-	vis[x] = true;
-	bool found = false;
-	
-	path.push_back(x);
-	for (int n : c[x]) {
-		if (c[n].size()) {
-			found = true;
-			solve(*(c[n].begin()), v, path, c, p, vis, last);
-			break;
-		}
-	}
-	if (!found && !c[x].empty()) {
-		solve(*(c[x].begin()), v, path, c, p, vis, last);
-	}
-	if (p[x] != -1) {
-		c[p[x]].erase(x);
-		if (!c[p[x]].empty()) {
-			int n = *(c[p[x]].begin());
-			solve(n, v, path, c, p, vis, last);
-		}
-		if (c[p[x]].empty()) {
-			if (!vis[p[x]]) solve(p[x], v, path, c, p, vis, last);
-			else {
-				solve(p[p[x]], v, path, c, p, vis, last);
-			}
-		}
-	}
-	
-}
+	p.pop_back();
+ }
 
 int main() {
 	ios_base::sync_with_stdio(false);
@@ -77,7 +45,7 @@ int main() {
 	int n;
 	cin >> n;
 	vector<vector<int> > v(n);
-	for (int i = 0; i < n- 1; i++) {
+	for (int i = 0; i < n - 1; i++) {
 		int x, y;
 		cin >> x >> y;
 		x--;
@@ -85,58 +53,57 @@ int main() {
 		v[x].push_back(y);
 		v[y].push_back(x);
 	}
-	// start at any node, go down by 2 until we can't,
-	vector<bool> vis(n, 0); 
-	vector<int> path;
-	vector<set<int> > children(n);
-	vector<int> parents(n, -1);
-	dfs(0, v, -1);
-	getc(st, v, children, parents, -1);
-	vector<set<int> > c = children;
-	solve(st, v, path, children, parents, vis, -1);
-	
-	bool can = path.size() == n;
-	for (int i = 0; i < n; i++) {
-		int cnt = 0;
-		for (int x : c[i]) {
-			if (c[x].size()) cnt++;
-		}
-		if (cnt > 3) can = false;
-	}
-	if (!can) {
-		cout << "No" << endl;
-		return 0;
-	}
-	for (int i = 0; i < n; i++) {
-		bool cc = false;
-		int a = path[i];
-		int b = path[(i + n - 1) % n];
-		for (int x : c[a]) {
-			if (x == b) cc = true;
-			for (int j : c[x]) {
-				if (j == b) cc = true;
+	vector<int> d(n, 0);
+	dfs(0, v, d);
+	int a = max_element(d.begin(), d.end()) - d.begin();
+	fill(d.begin(), d.end(), 0);
+	dfs(a, v, d);
+	int b = max_element(d.begin(), d.end()) - d.begin();
+	vector<int> diam, p;
+	dfs2(a, b, v, diam, p);
+	set<int> ds;
+	for (int x : diam) ds.insert(x);
+	vector<int> res;
+	bool can = true;
+	for (int i = 0; i < diam.size(); i++) {
+		if (i % 2 == 0) {
+			res.push_back(diam[i]);
+		} else {
+			for (int x : v[diam[i]]) {
+				if (!ds.count(x)) {
+					res.push_back(x);
+					if (v[x].size() > 1) can = false;
+				}
 			}
 		}
-		swap(a, b);
-		for (int x : c[a]) {
-			if (x == b) cc = true;
-			for (int j : c[x]) {
-				if (j == b) cc = true;
+	}
+	for (int i = diam.size() - 1; i >= 0; i--) {
+		if (i % 2 == 1) {
+			res.push_back(diam[i]);
+		} else {
+			for (int x : v[diam[i]]) {
+				if (!ds.count(x)) {
+					res.push_back(x);
+					if (v[x].size() > 1) can = false;
+				}
+				
 			}
 		}
-		if (parents[a] == parents[b]) cc = true;
-		if (!cc) can = false;
+		
 	}
 	if (can) {
 		cout << "Yes" << endl;
-		for (int i = 0; i < n; i++) {
-			cout << path[i] + 1;
-			if (i == n - 1) cout << endl;
-			else cout << " ";
+		assert(res.size() == n);
+		for (int i = 0; i < res.size(); i++) {
+			cout << res[i] + 1 << " \n"[i == n - 1];
 		}
 	} else {
 		cout << "No" << endl;
 	}
+
+
+
+	
 
 	// IF STUCK:
 		// DIV CONQUER?

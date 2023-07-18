@@ -103,7 +103,7 @@ struct node_t {
   node_t operator+(node_t const& other) {
     if (identity) return other;
     if (other.identity) return *this;
-    return { x + other.x, tl, other.tr };
+    return { x + other.x, tl, other.tr, false };
   }
 };
 
@@ -111,7 +111,7 @@ struct update_t {
   ll x;
 
   node_t operator()(node_t const& node) const {
-    return { node.x + (node.tr + 2) * (node.tr + 1)  / 2 - (node.tl + 1) * node.tl / 2, node.tl, node.tr};
+    return { node.x + x, node.tl, node.tr, false };
   }
 
   update_t operator+(update_t const& u) {

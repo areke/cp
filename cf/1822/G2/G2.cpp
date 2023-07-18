@@ -30,6 +30,7 @@ int main() {
 		int n;
 		cin >> n;
 		vector<long long> a(n);
+		long long res = 0;
 		set<long long> s;
 		map<long long, long long> m;
 		for (int i = 0; i < n; i++) {
@@ -37,31 +38,22 @@ int main() {
 			m[a[i]]++;
 			s.insert(a[i]);
 		}
-		sort(a.begin(), a.end());
-		a.erase(unique(a.begin(), a.end()), a.end());
-		long long res = 0;
-		if (a.size() <= 5000) {
-			for (int i = 0; i < a.size(); i++) {
-				for (int j = i + 1; j < a.size(); j++) {
-					if (a[j] != a[i] && a[j] % a[i] == 0) {
-						long long b = a[j] / a[i];
-						if (m.count(b * a[j])) {
-							res += m[b * a[j]] * m[a[j]] * m[a[i]];
+		for (long long x : s) {
+			long long bord = min(MAXI / x, (long long)sqrt(x) + 1);
+			
+			for (long long b = 1; b <= bord; b++) {
+				if (x % b == 0) {
+					if (b != 1 && m.count(x / b) && m.count(x * b)) {
+						res += m[x / b] * m[x] * m[x * b];
+					}
+					if (x / b != 1 && x / b > bord) {
+						if (m.count(b) && m.count(x / b * x)) {
+							res += m[b] * m[x] * m[x * x / b];
 						}
 					}
 				}
 			}
-		} else {
-			for (long long b = 2; b <= sqrt(MAXI) + 1; b++) {
-				// x, x*b, x*b^2
-				for (long long x : s) {
-					if (x * b * b > MAXI) break;
-					if (m.count(x * b) && m.count(x * b * b)) {
-						res += m[x] * m[x * b] * m[x * b * b];
-					}
-					
-				}
-			}
+			
 			
 		}
 		for (auto it : m) {
@@ -71,6 +63,7 @@ int main() {
 		}
 		
 		cout << res << endl;
+		
 	}
  
 	// IF STUCK:

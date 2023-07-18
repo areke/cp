@@ -21,9 +21,9 @@ using namespace std;
 const long long MOD = 998244353;
 
 struct mi { // WARNING: needs some adjustment to work with FFT
- 	int v; explicit operator int() const { return v; } 
+ 	long long v; explicit operator int() const { return v; } 
 	mi():v(0) {}
-	mi(long long _v):v(int(_v%MOD)) { v += (v<0)*MOD; }
+	mi(long long _v):v((int)(_v%MOD)) { v += (v<0)*MOD; }
 };
 mi& operator+=(mi& a, mi b) { 
 	if ((a.v += b.v) >= MOD) a.v -= MOD; 
@@ -41,12 +41,29 @@ mi inv(mi a) { assert(a.v != 0); return pow(a,MOD-2); }
 mi operator/(mi a, mi b) { return a*inv(b); }
 bool operator==(mi a, mi b) { return a.v == b.v; }
 
-long long MAXI = 8e5;
-vector<mi> fact(MAXI);
-vector<mi> ifact(MAXI);
+const int MAXN = 300000 + 5;
+mi fact[MAXN], invfact[MAXN];
+mi nCr(int n, int r) {
+	return fact[n] * invfact[r] * invfact[n - r];
+}
 
-mi nCr(long long n, long long r) {
-	return fact[n] * ifact[n - r] * ifact[r]; 
+void prepareFact() {
+	fact[0] = 1;
+	for (int i = 1; i < MAXN; i++) {
+		fact[i] = fact[i - 1] * i;
+	}
+	invfact[MAXN - 1] = mi(1) / fact[MAXN - 1];
+	for (int i = MAXN - 2; i >= 0; i--) {
+		invfact[i] = invfact[i + 1] * (i + 1);
+	}
+}
+
+mi modExp(mi a, long long b) {
+	if (b == 0) return 1;
+	mi res = modExp(a, b / 2);
+	res *= res;
+	if (b % 2) res *= a;
+	return res;
 }
 
 
@@ -54,40 +71,19 @@ int main() {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	fact[0] = 1;
-	for (long long i = 1; i < MAXI; i++) {
-		fact[i] = fact[i - 1] * i;
-	}
+	prepareFact();
 
-	ifact[MAXI - 1] = mi(1) / fact[MAXI - 1];
-	for (long long i = MAXI - 2; i >= 0; i--) {
-		ifact[i] = ifact[i + 1] * (i + 1);
-	}
-	
 	long long n, m, k;
 	cin >> n >> m >> k;
 	mi res = 0;
-	for (int i = 0; i <= m + 1; i++) {
-		if (2 * i - 1 > m + 1) continue;
-		long long small = i;
-		long long big = i - 1;
-		if (i == 0) {
-			big = 0;
+	for (long long i = 0; i <= m; i++) {
+		long long num = n - i * (2 * k + 1) - (m - i) * (k + 1) + m;
+		if (num < m) {
+			break;
 		}
-		long long med = m + 1 - big - small;
-		
-		long long s = small * 1 + (2 * k + 2) * big + (k + 1) * med;
-		if (med < 0) continue;
-		if (n + 1 - s < 0) continue;
-		mi mult = 1;
-		if (i > 0) {
-			mult = nCr(m + 1, 2 * i - 1);
-		}
-		res += nCr(n + 1 - s + m, m) * mult;
-		
+		//cout << m << " " << i << " " << num << " " << m << endl;
+		res += nCr(m, i) * nCr(num, m) * modExp(2, m - i) * modExp(-1, i);
 	}
-
-
 	cout << res.v << endl;
 
 
