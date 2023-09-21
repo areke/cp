@@ -1,24 +1,54 @@
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <iomanip>
-#include <vector>
-#include <map>
-#include <set>
-#include <stack>
-#include <limits>
-#include <assert.h>
-#include <queue>
-#include <list>
-#include <assert.h>
-#include <array>
-#include <cstring>
+#include <bits/stdc++.h>
 using namespace std;
 
-long long MOD = 1e9 + 7;
+
+const long long MOD = 1e9 + 7;
+
+struct mi { // WARNING: needs some adjustment to work with FFT
+ 	long long v; explicit operator int() const { return v; } 
+	mi():v(0) {}
+	mi(long long _v):v((int)(_v%MOD)) { v += (v<0)*MOD; }
+};
+mi& operator+=(mi& a, mi b) { 
+	if ((a.v += b.v) >= MOD) a.v -= MOD; 
+	return a; }
+mi& operator-=(mi& a, mi b) { 
+	if ((a.v -= b.v) < 0) a.v += MOD; 
+	return a; }
+mi operator+(mi a, mi b) { return a += b; }
+mi operator-(mi a, mi b) { return a -= b; }
+mi operator*(mi a, mi b) { return mi((long long)a.v*b.v); }
+mi& operator*=(mi& a, mi b) { return a = a*b; }
+mi pow(mi a, long long p) { assert(p >= 0); // won't work for negative p
+	return p==0?1:pow(a*a,p/2)*(p&1?a:1); }
+mi inv(mi a) { assert(a.v != 0); return pow(a,MOD-2); }
+mi operator/(mi a, mi b) { return a*inv(b); }
+bool operator==(mi a, mi b) { return a.v == b.v; }
+
+const int MAXN = 200000 + 5;
+mi fact[MAXN], invfact[MAXN];
+mi nCr(int n, int r) {
+	return fact[n] * invfact[r] * invfact[n - r];
+}
+
+void prepareFact() {
+	fact[0] = 1;
+	for (int i = 1; i < MAXN; i++) {
+		fact[i] = fact[i - 1] * i;
+	}
+	invfact[MAXN - 1] = mi(1) / fact[MAXN - 1];
+	for (int i = MAXN - 2; i >= 0; i--) {
+		invfact[i] = invfact[i + 1] * (i + 1);
+	}
+}
+
+mi modExp(mi a, long long b) {
+	if (b == 0) return 1;
+	mi res = modExp(a, b / 2);
+	res *= res;
+	if (b % 2) res *= a;
+	return res;
+}
 
 int main() {
 	ios_base::sync_with_stdio(false);
@@ -26,36 +56,43 @@ int main() {
 	int n;
 	cin >> n;
 	vector<long long> v(n);
+
 	for (int i = 0; i < n; i++) {
 		cin >> v[i];
 	}
 	sort(v.begin(), v.end());
+	if (n > 300) {
+		v.erase(v.begin() + 300, v.end());
+	}
+	int times = n - 1;
+	mi res = 0;
+	while (times--) {
+		vector<long long> next;
 
-	for (int t = n - 1; t >= 1; t--) {
-		priority_queue<array<long long, 3>, vector<array<long long, 3>>, greater<array<long long, 3>> > pq;
-		pq.push({(v[0] + v[1]) % MOD, 0, 1});
-		vector<long long> nv(t);
-		int cur = 0;
-		while (!pq.empty()) {
-			array<long long, 3> next = pq.top();
-			//cout << next[0] << " " << next[1] << " " << next[2] << endl;
-			pq.pop();
-			nv[cur++] = next[0];
-			if (cur >= t) break;
-			if (next[2] + 1 < v.size() && next[1] != next[2] + 1) {
-				pq.push({(v[next[1]] + v[next[2] + 1]) % MOD, next[1], next[2] + 1});
-			}
-			if (next[1] + 1 < v.size() && next[1] + 1 != next[2]) {
-				pq.push({(v[next[1] + 1] + v[next[2]]) % MOD, next[1] + 1, next[2]});
+		res += v[0];
+		res *= 2;
+		for (int i = v.size() - 1; i >= 0; i--) {
+			v[i] -= v[0];
+		}
+		for (int i = 0; i < v.size(); i++) {
+			for (int j = i + 1; j < min(v.size(), v.size() / (i + 1) + 1); j++) {
+				next.push_back(v[i] + v[j]);
 			}
 		}
-		v = nv;
+		sort(next.begin(), next.end());
+		if (next.size() > v.size()) {
+			next.erase(next.begin() + v.size(), next.end());
+		}
+		v = next;
 	}
-	cout << v[0] << endl;
+	res += v[0];
+	cout << res.v << endl;
 
 
 	// IF STUCK:
 		// DIV CONQUER?
 		// CONSIDER SMALL CASES
+		// INDUCTION
+
 	return 0;
 }

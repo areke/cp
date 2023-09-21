@@ -118,7 +118,8 @@
         "spanstream": "cpp",
         "stdfloat": "cpp",
         "stop_token": "cpp",
-        "syncstream": "cpp"
+        "syncstream": "cpp",
+        "version": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "terminal.integrated.shellArgs.osx": ["-l"]

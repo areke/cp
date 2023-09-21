@@ -1,21 +1,4 @@
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <iomanip>
-#include <vector>
-#include <map>
-#include <set>
-#include <stack>
-#include <limits>
-#include <assert.h>
-#include <queue>
-#include <list>
-#include <assert.h>
-#include <array>
-#include <cstring>
+#include <bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -23,11 +6,32 @@ int main() {
 	cin.tie(NULL);
 	int tests;
 	cin >> tests;
-	while (tests--) {
-		
+	for (int test = 1; test <= tests; test++) {
+		int n;
+		cin >> n;
+		vector<int> v(n);
+		map<int, int> m;
+		for (int i = 0; i < n ;i++) {
+			cin >> v[i];
+			m[v[i]]++;
+		}
+		int maxi = 0;
+		for (auto it : m) {
+			maxi = max(maxi, it.second);
+		}
+		long long res = n - maxi;
+		while (maxi < n) {
+			res++;
+			maxi *= 2;
+		}
+
+		cout << res << endl; 
 	}
 
 	// IF STUCK:
+		// DIV CONQUER?
 		// CONSIDER SMALL CASES
+		// INDUCTION
+
 	return 0;
 }

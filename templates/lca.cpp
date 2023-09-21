@@ -2,6 +2,7 @@
 using namespace std;
 
 // solves https://codeforces.com/problemset/problem/1843/F2
+// ASSUMES WE ARE JUMPING ON A TREE
 
 struct node {
 	int maxi = 0, sufmax = 0, prefmax = 0;
@@ -71,7 +72,7 @@ struct LCA {
 			jump[0][x] = {last, a[x]};
 			int s = cnt;
 			for (auto u : v[x]) {
-				if (n == last) continue;
+				if (u == last) continue;
 				lca_dfs(u, ++cnt, x);
 			}
 			int e = cnt;

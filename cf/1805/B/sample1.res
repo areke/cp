@@ -1,4 +1,0 @@
-acb
-aacc
-abbcb
-aaab
